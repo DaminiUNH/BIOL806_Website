@@ -1,0 +1,334 @@
+
+---
+title: "Data Science Problem Set: Palmer Penguins and R packages"
+author: "Damini Patel"
+date: "`r format(Sys.Date(), '%Y-%m-%d')`"
+output: 
+  html_document: 
+    code_folding: hide
+  pdf_document: default
+---
+
+
+## Introduction 
+
+In this problem set, I use the `Palmerpenguins` data-set measurements of Adelie, Chinstrap, and Gentoo penguins from islands near Palmer Station, Antarctica-to practice a modern R data workflow. I'll explore, clean, transform, and visualize the data using four core packages.
+
+- `ggplot2`: for data visualization
+- `dplyr`: for data manipulation like filtering, grouping, summrizing
+- `tidyr`: for reshaping between wide and long formats
+- `forcats`: for working with categorical variables (Factors)
+
+The exercise build sequentially : 
+- I start by inspecting the data, then handle missing values, 
+- Filter and group to answer focused questions, 
+- Engineer a new variable with `mutate()`, 
+- Reshape with `pivot_longer()`, 
+- Reorder factors with `forcats`, and 
+- Create publication-quality plots (Scatter plot, box plot, and a faceted custom graphic).
+
+
+# Load Packages :
+
+```{r}
+
+library(tidyverse)
+library(palmerpenguins)
+
+```
+
+
+---
+
+
+## Question 1: Inspecting the Data
+
+```{r}
+
+str(penguins)
+summary(penguins)
+
+```
+
+
+---
+
+
+
+## Question 2: Data Cleaning
+
+```{r}
+
+# Count missing value in each column
+missing_counts <- colSums(is.na(penguins))
+
+
+# Total missing values
+total_missing <- sum(is.na(penguins))
+
+# Remove rows with any NA values
+penguins_clean <- penguins %>% 
+  drop_na()
+
+# Check rows before and after cleaning
+rows_before <- nrow(penguins)
+rows_after <- nrow(penguins_clean)
+
+
+```
+
+- The original data-set had **`r rows_before`** rows.
+- There were **`r total_missing`** missing values across all variables.
+- After removing rows with missing value, the cleaned data-set (`penguins_clean`) has **`r rows_after`** rows.
+
+
+---
+
+
+
+## Question 3: Filtering and Grouping
+
+```{r}
+
+# Filter only Adelie penguins
+adelie <- penguins_clean %>% 
+  filter(species == "Adelie")
+
+# Group by island and calculate mean body mass
+adelie_mass <- adelie %>% 
+  group_by(island) %>% 
+  summarise(mean_body_mass = mean(body_mass_g, na.rm = TRUE))
+
+adelie_mass
+
+```
+
+Among the cleaned data-set, there are **`r nrow(adelie)`** Adelie penguins.
+
+The mean body mass for Adelie penguins on each island is as follows :
+
+- **Biscoe : `r round(adelie_mass$mean_body_mass[adelie_mass$island == "Biscoe"], 1)` g**
+
+- **Dream : `r round(adelie_mass$mean_body_mass[adelie_mass$island == "Dream"], 1)` g**
+
+- **Torgersen : `r round(adelie_mass$mean_body_mass[adelie_mass$island == "Torgersen"], 1)` g**
+
+
+---
+
+
+
+## Question 4: Data Visualization with `ggplot2`
+
+**Scatter plot of Flipper length vs Body mass and colored by species.**
+
+```{r}
+
+# Scatter plot of flipper length vs Body mass, colored by species
+ggplot(penguins_clean, aes(x= flipper_length_mm,
+                           y = body_mass_g,
+                           color = species)) +
+  geom_point(size = 3, alpha = 0.7) +
+  geom_smooth(method = "lm", se = FALSE, linewidth = 1) +
+  labs(
+    title = "Flipper Length vs Body Mass by Species",
+    x = "Flipper Length (mm)",
+    y = "Body Mass (g)",
+    color = "Species"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.background = element_rect(colour = "black", fill = "white")
+    
+  )
+
+```
+
+
+---
+
+
+
+## Question 5: Transforming the Data with `mutate()`
+
+**Add a new column to `penguins_clean` that calculates the ratio of body mass to flipper length. Name this column `mass_to_flipper_ratio`.**
+
+```{r}
+
+# add new column
+penguins_clean <- penguins_clean %>% 
+  mutate(mass_to_flipper_ratio = body_mass_g / flipper_length_mm)
+
+# Quick check for new column
+head(penguins_clean %>% 
+       select(species, island, body_mass_g, flipper_length_mm, mass_to_flipper_ratio))
+
+
+```
+
+The average body mass to flipper length ratio across all penguins is **`r round(mean(penguins_clean$mass_to_flipper_ratio, na.rm = TRUE), 2)`**.
+
+
+---
+
+
+
+
+## Question 6: Tidying the Data with `tidyr`
+
+```{r}
+
+# Reshape the dataset to long format
+penguins_long <- penguins_clean %>% 
+  pivot_longer(
+    cols = c(bill_length_mm, bill_depth_mm, flipper_length_mm, body_mass_g),
+    names_to = "measurement",
+    values_to = "value"
+  )
+
+# Quick check
+head(penguins_long)
+
+```
+
+After pivoting to long format, the dataset now has **`r nrow(penguins_long)`** rows and **`r ncol(penguins_long)`** columns.
+Each row represents a single penguin measurement (bill length, flipper length, or body mass).
+
+
+
+---
+
+
+
+## Question 7: Working with Factors using `forcats`
+
+```{r}
+
+library(forcats)
+
+# Ensure species is a factor
+penguins_clean <- penguins_clean %>% 
+  mutate(species = as.factor(species))
+
+# Reorder factor levels
+penguins_clean <- penguins_clean %>% 
+  mutate(species = fct_relevel(species, "Chinstrap", "Gentoo", "Adelie"))
+
+# Quick check
+levels(penguins_clean$species)
+
+```
+
+After reordering, the species factor levels are : **`r paste(levels(penguins_clean$species), collapse = ",")`**
+
+
+
+---
+
+
+
+## Question 8: Advanced Plotting with `ggplot2`
+
+**Box plot of Body mass by Species.**
+
+```{r}
+
+# Boxplot of body mass by species
+ggplot(penguins_clean, aes(x = species, y = body_mass_g, fill = species)) +
+  geom_boxplot(alpha = 0.8, outlier.shape = 21, outlier.fill = "white") +
+  labs(
+    title = "Distribution of Penguin Body Mass by Species",
+    x = "Body Mass (g)") +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    plot.background = element_rect(colour = "black", fill = "white")
+    
+  )
+
+```
+The boxplot shows the distribution of body mass (g) across species.
+The median body mass for Adelie penguins is **`r median(penguins_clean$body_mass_g[penguins_clean$species == "Adelie"], na.rm = TRUE)`**.
+
+
+---
+
+
+
+
+## Question 9: Combining `dplyr` and `ggplot2`
+
+**Bar plot : Average Bill length by species on Dream Isaland.**
+
+```{r}
+
+# filter to dream island and summrise avg bill length
+dream_summary <- penguins_clean %>% 
+  filter(island == "Dream") %>% 
+  group_by(species) %>% 
+  summarise(mean_bill_length = mean(bill_length_mm, na.rm = TRUE))
+
+dream_summary
+
+# Bar plot
+ggplot(dream_summary, aes(x = species, y = mean_bill_length, fill = species)) +
+  geom_col(width = 0.6) +
+  labs(
+    title = "Average Bill Length by Species on Dream Island",
+    x = "Species",
+    y = "Average Bill Length (mm)"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.background = element_rect(colour = "black", fill = "white")
+    
+  )
+
+  
+```
+
+On Dream Island, the average bill length for Adelie penguins is **`r round(dream_summary$mean_bill_length[dream_summary$species == "Adelie"], 1)`** mm,
+for Chinstrap penguins it is **`r round(dream_summary$mean_bill_length[dream_summary$species == "Chinstrap"], 1)`** mm,
+and for Gentoo penguins it is **`r round(dream_summary$mean_bill_length[dream_summary$species == "Gentoo"], 1)`** mm.
+
+
+
+
+---
+
+## Question 10: Final Challenge - Custom Visualization
+
+**Custom Scatter plot : Bill length vs Bill depth faceted by Island.**
+
+```{r}
+
+# Custom scatter plot
+ggplot(penguins_clean, aes(x = bill_length_mm,
+                           y = bill_depth_mm,
+                           shape = species,
+                           colour = species)) +
+  geom_point(size = 3, alpha = 0.8) +
+  facet_wrap(~island) +
+  labs(
+    title = "Bill Length vs Bill Depth faceted by Island",
+    subtitle = "Different shapes and colors represent penguins species",
+    x = "Bill Length (mm)",
+    y = "Bill Depth (mm)",
+    shape = "Species",
+    color = "Species"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5),
+    plot.background = element_rect(colour = "black", fill = "white"),
+    legend.background = element_rect(colour = "black", fill = "white"),
+    legend.key = element_rect(colour = "black", fill = "white")
+  )
+
+```
+
+
+
+---
+

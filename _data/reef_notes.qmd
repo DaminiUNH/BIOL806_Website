@@ -1,0 +1,288 @@
+---
+format:
+  pdf:
+    toc: true
+    number-sections: true
+    geometry: margin=1in
+    mainfont: "Times New Roman"
+    fontsize: 12pt
+execute:
+  warning: false
+  message: false
+---
+
+```{r setup, include=FALSE}
+
+# Load package
+library(tidyverse)
+
+#Load data
+reef_fish <- readr::read_csv("BioTIME_raw_data_45.csv", show_col_types = FALSE)
+
+# Yearly biodiversity metrics
+reef_yearly <- reef_fish %>%
+  group_by(YEAR) %>%
+  summarise(
+    total_abundance = sum(ABUNDANCE, na.rm = TRUE),
+    species_richness = n_distinct(valid_name),
+    .groups = "drop"
+  )
+
+# Linear trends
+richness_trend  <- lm(species_richness ~ YEAR, data = reef_yearly)
+abundance_trend <- lm(total_abundance  ~ YEAR, data = reef_yearly)
+
+# Slopes used in inline context
+slope_rich <- coef(richness_trend)[["YEAR"]]
+slope_abun <- coef(abundance_trend)[["YEAR"]]
+
+# Range for inline context
+min_year <- min(reef_yearly$YEAR, na.rm = TRUE)
+max_year <- max(reef_yearly$YEAR, na.rm = TRUE)
+min_rich <- min(reef_yearly$species_richness, na.rm = TRUE)
+max_rich <- max(reef_yearly$species_richness, na.rm = TRUE)
+min_abun <- min(reef_yearly$total_abundance, na.rm = TRUE)
+max_abun <- max(reef_yearly$total_abundance, na.rm = TRUE)
+
+```
+\newpage
+\thispagestyle{empty}
+\begin{center}
+\vspace*{3cm}
+
+{\Large \textbf{Temporal Trends in Coral Reef Fish Biodiversity from French Polynesia (2006–2015)}}\\[1.5cm]
+
+{\large \textbf{Damini Patel}}\\[1cm]
+
+{\large University of New Hampshire}\\[0.5cm]
+
+{\large Data Science with R for the Life Sciences}\\[0.5cm]
+
+{\large Instructor: Dr. Easton White}\\[1cm]
+
+{\large \today}
+
+\vfill
+
+\end{center}
+\newpage
+
+
+
+# Abstract
+
+This study analyzes a 10-year coral-reef fish data-set from French Polynesia (BioTIME Study 45; `r min_year`- `r max_year`) to assess temporal biodiversity trends. Using a tidyverse workflow, I computed **species richness** and **total abundance** per year and fitted simple linear trends. Results indicate year-to-year variability, with richness showing a `r ifelse(slope_rich > 0, "positive", "negative")` trend and abundance a `r ifelse(slope_abun > 0, "increase", "decrease")` trend. Richness ranged `r min_rich` - `r max_rich` species, while abundance ranged `r format(min_abun, big.mark = ",")` - `r format(max_abun, big.mark = ",")` individual. Overall, patterns suggest dynamic but resilient communities with short-term fluctuation rather than a strong directional change.
+
+
+\newpage
+
+
+# Introduction
+
+Coral reefs sustain exceptional biodiversity but face threats from habitat degradation, ocean warming, and pollution. Monitoring long-term changes in reef fish communities helps assess reef health and resilience. Here, I analyze long-term coral reef fish data from the **BioTIME** database to address:
+
+1.  How have total fish abundance and species richness changed from `r min_year`-`r max_year`?
+2.  Are family-level trends consistent with the whole-community patterns?
+
+
+\newpage
+
+
+# Methods
+
+
+## Data Source
+
+**Dataset**: BioTIME Study 45 - Coral Reef Fish (`r min_year`-`r max_year`) 
+
+**Region**: French Polynesia (approx. 17.5°S, 149.8°W) 
+
+**Key columns**: YEAR, valid_name (species), ABUNDANCE, BIOMASS, LATITUDE, LONGITUDE.
+
+
+
+## Data Processing
+
+-   Summed **ABUNDANCE** per year and counted disticnt **valid_name** to obtain **total_abundance** and **species_richness**.
+
+-   Fitted simple linear models: lm(species_richness \~ YEAR) and lm(total_abundance \~ YEAR).
+
+-   Visualized temporal patterns with ggplot2 (points + lines and LOESS smoothers).
+
+-   Reproducibility: all codes below uses tidyverse functions and runs top-to-bottom.
+
+```{r}
+
+# Recreate core processing 
+reef_yearly <- reef_fish %>%
+  group_by(YEAR) %>%
+  summarise(
+    total_abundance = sum(ABUNDANCE, na.rm = TRUE),
+    species_richness = n_distinct(valid_name),
+    .groups = "drop"
+  )
+
+richness_trend  <- lm(species_richness ~ YEAR, data = reef_yearly)
+abundance_trend <- lm(total_abundance  ~ YEAR, data = reef_yearly)
+
+slope_rich <- unname(coef(richness_trend)["YEAR"])
+slope_abun <- unname(coef(abundance_trend)["YEAR"])
+
+```
+\newpage
+
+
+# Results
+
+
+## Annual Patterns of Abundance and Richness
+```{r}
+#| label: fig-trends
+#| fig-cap: "Temporal trends in total abundance (solid) and species richness (dashed). Dashed line = species richness ×10 (scaled)."
+#| fig-alt: "Line plot showing total abundance and scaled species richness across years."
+
+
+
+ggplot(reef_yearly, aes(x = YEAR)) +
+  geom_line(aes(y = total_abundance, 
+                color = "Total Abundance"), linewidth = 1) +
+  geom_point(aes(y = total_abundance, 
+                 color = "Total Abundance"), size = 2) +
+  geom_line(aes(y = species_richness * 10, 
+                color = "Species Richness (×10)"),
+            linewidth = 1, linetype = "dashed") +
+  scale_color_manual(values = c("Total Abundance" = "darkblue", "Species Richness (x10)" = "orange")) +
+  
+  labs(
+    title = "Abundance and Richness Over Time",
+    x = "Year", 
+    y = "Count / Index", color = "Metric"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.background = element_rect(color = "black", fill = "white"),
+    legend.position = "bottom"
+  )
+
+```
+This figure covers `r min_year`-`r max_year`. See @fig-trends for overall patterns.
+
+Species richness shows a **`r ifelse(slope_rich > 0, "steady increase", "decline")`**, while abundance shows a **`r ifelse(slope_abun > 0, "positive", "negative")`** linear tread.
+
+
+\newpage
+
+
+
+# Dominant Fish Families
+```{r}
+
+top_families <- reef_fish %>%
+  mutate(family = stringr::word(valid_name, 1)) %>%
+  group_by(YEAR, family) %>%
+  summarise(total_abundance = sum(ABUNDANCE, na.rm = TRUE), .groups = "drop") %>%
+  group_by(family) %>%
+  filter(mean(total_abundance, na.rm = TRUE) > 100) %>% 
+  ungroup()
+
+# Quick check of families retained 
+unique(top_families$family)
+
+```
+
+```{r}
+#| label: fig-families
+#| fig-cap: "Yearly abundance trends for dominant coral-reef fish families."
+#| fig-alt: "Multiple colored lines for fish families plotted by year."
+
+ggplot(top_families, aes(x = YEAR, y = total_abundance, color = family)) +
+  geom_line(linewidth = 1) +
+  labs(
+    title = "Dominant Fish Families",
+    x = "Year", 
+    y = "Total Abundance", 
+    color = "Family"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.background = element_rect(color = "black", fill = "white"))
+
+```
+Family-level patterns are shown in @fig-families.
+
+
+\newpage
+
+
+# Subfigures: LOESS Smoothing (A/B Panels)
+
+```{r}
+#| label: fig-subplots
+#| fig-cap: "Yearly biodiversity metrics with LOESS smoothing."
+#| fig-subcap: ["Total abundance (LOESS)", "Species richness (LOESS)"]
+#| layout-ncol: 2
+
+# First panel
+
+p_abun <- ggplot(reef_yearly, aes(YEAR, total_abundance)) +
+geom_point(size = 2) +
+  geom_smooth(method = "loess", se = FALSE) +
+  labs(x = "Year", y = "Total abundance") +
+  theme_minimal() +
+  theme(plot.background = element_rect(colour = "black", fill = "white"))
+
+# Second panel
+
+p_rich <- ggplot(reef_yearly, aes(YEAR, species_richness)) +
+  geom_point(size = 2) +
+  geom_smooth(method = "loess", se = FALSE) +
+  labs(x = "Year", y = "Species richness") +
+  theme_minimal() +
+  theme(plot.background = element_rect(colour = "black", fill = "white"))
+
+p_abun
+p_rich
+  
+```
+See @fig-subplots (panel A-B) for smoothed non-linear patterns.
+
+
+\newpage
+
+
+# Yearly Summary Table
+
+```{r}
+#| label: tbl-yearly
+#| tbl-cap: "Yearly totals for abundance and species richness."
+
+knitr::kable(reef_yearly, align = "c")
+
+```
+See @tbl-yearly for the yearly summary.
+
+
+
+\newpage
+
+
+
+# Discussion
+
+Both total abundance and species richness fluctuated across years, indicating short-term variability typical for coral-reef communities. Richness appears **`r ifelse(slope_rich > 0, "increasing", "decreasing")`**, while abundance shows a **`r ifelse(slope_abun > 0, "positive", "negative")`** linear trend. The LOESS panels (A-B) suggest temporary dips and recoveries rather than a steady directional shift, consistent with environmental variability (e.g., temperature anomalies or disturbance-recovery cycles). Limitations include potential variation in sampling effort and taxonomic aggregation in the raw data. Integrating environmental covariates (e.g., sea surface temperature, bleaching events) could clarify drivers of observed dynamics.
+
+
+
+
+# Conclusion
+
+From `r min_year`-`r max_year`, species richness and abundance exhibit **moderate interannual variation** with modest linear trends **(richness: `r ifelse(slope_rich > 0, "upward", "downward")`, abundance: `r ifelse(slope_abun > 0, "upward", "downward")`)**. These finding suggest a **dynamic but resilient** coral-reef fish community. Future work should incorporate environmental predictors to better explain temporal patterns.
+
+
+# References
+
+- Dornelas, M., Gotelli, N. J., McGill, B., Shimadzu, H., Moyes, F., Sievers, C., & Magurran, A. E. (2018). *BioTIME: A database of biodiversity time series for the Anthropocene.* *Global Ecology and Biogeography, 27*(7), 760–786. https://doi.org/10.1111/geb.12729
+
+- Wickham, H., Averick, M., Bryan, J., Chang, W., McGowan, L. D. A., François, R., Grolemund, G., Hayes, A., Henry, L., Hester, J., Kuhn, M., Pedersen, T. L., Miller, E., Bache, S. M., Müller, K., Ooms, J., Robinson, D., Seidel, D. P., Spinu, V., ... Yutani, H. (2019). *Welcome to the tidyverse.* *Journal of Open Source Software, 4*(43), 1686. https://doi.org/10.21105/joss.01686
+
+- White, E. (2025). *Data Science for Life Sciences: Course materials.* University of New Hampshire.

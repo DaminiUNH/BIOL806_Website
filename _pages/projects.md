@@ -13,8 +13,8 @@ Welcome! Here are a few projects highlighting my work in **cell culture** and **
 - **Skills:** tidyverse, ggplot2, data wrangling, time-series trends  
 - **Summary:** Analyzed 10 years of BioTIME coral reef fish data; trends in abundance & richness.  
 - **Links:** 
-  - [PDF Report](/files/Temporal_Trends_Coral_Reef_Biodiversity_Final.pdf)
-  - [Code/Notes](/files/reef_notes.md)
+  - [PDF Report](/_data/Temporal_Trends_Coral_Reef_Biodiversity.pdf)
+  - [Code/Notes](/_data/reef_notes.qmd)
 
 ---
 
@@ -22,8 +22,8 @@ Welcome! Here are a few projects highlighting my work in **cell culture** and **
 - **Skills:** dplyr, tidyr, forcats, ggplot2  
 - **Summary:** Summaries by species/island; scatterplots, boxplots, and facet grids.  
 - **Links:** 
-  - [Project Notebook](/files/penguins_project.qmd)
-  - [Rendered HTML](/files/penguins_project.html)
+  - [Project Notebook](/_data/penguins.qmd)
+  - [Rendered HTML](/_data/penguins-notebook.html)
 
 ---
 

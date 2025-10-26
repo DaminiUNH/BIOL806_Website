@@ -1,16 +1,24 @@
 ---
 layout: home
-title: ""
+title: ""                # keep empty to avoid duplicate big title
 author_profile: true
 ---
 
-<img src="{{ site.baseurl }}/images/img:me.png" alt="Damini Patel" width="180"
-     style="border-radius:100px;border:3px solid #007acc;box-shadow:0 4px 10px rgba(0,0,0,.2);margin:10px 0;" />
+<p align="center">
+  <img src="{{ site.baseurl }}/images/img:me.png" alt="Damini Patel headshot" width="180"
+       style="border-radius:100px;border:3px solid #00529B;box-shadow:0 4px 12px rgba(0,0,0,.15);" />
+</p>
 
-Hi, I'm **Damini Patel**, a Molecular & Cellular Biotechnology student at **UNH**.  
-I’m passionate about **cell culture**, **data science**, and **biotech innovation**.
+<p align="center">
+  Hi, I’m <b>Damini Patel</b>, a Molecular &amp; Cellular Biotechnology student at <b>UNH</b>.<br/>
+  I’m passionate about <b>cell culture</b>, <b>data science</b>, and <b>biotech innovation</b>.
+</p>
 
-This site showcases my **projects**, **visualizations**, and **learning journey** in R and life sciences.
+<p align="center">
+  This site showcases my projects, visualizations, and learning in R and life sciences.
+</p>
 
-- 📧 <a href= "mailto:Daminiben.Patel@unh.edu">Email me</a>
-- 💻 <a href="https://github.com/DaminiUNH">GitHub</a>
+<p align="center">
+  📧 <a href="mailto:Daminiben.Patel@unh.edu">Email me</a> &nbsp;·&nbsp;
+  💻 <a href="https://github.com/DaminiUNH" target="_blank">GitHub</a>
+</p>
