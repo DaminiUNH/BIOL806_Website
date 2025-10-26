@@ -1,6 +1,7 @@
 ---
 layout: home
-title: "Welcome!"
+title: ""
+author_profile: true
 ---
 
 <img src="{{ site.baseurl }}/images/img:me.png" alt="Damini Patel" width="180"
@@ -11,5 +12,5 @@ I’m passionate about **cell culture**, **data science**, and **biotech innovat
 
 This site showcases my **projects**, **visualizations**, and **learning journey** in R and life sciences.
 
-- 📧 <a href="mailto:Daminiben.Patel@unh.edu">Email me</a>
+- 📧 <a href= "mailto:Daminiben.Patel@unh.edu">Email me</a>
 - 💻 <a href="https://github.com/DaminiUNH">GitHub</a>
