@@ -27,5 +27,5 @@ I’m passionate about **cell culture**, **data science**, and exploring **biote
 
 ### 🌐 Connect with Me
 - 📧 [Email](mailto:Daminiben.Patel@unh.edu)  
-- 💻 [GitHub](https://github.com/DaminiUNH){:target="_blank"}  
-- 💼 [LinkedIn](https://www.linkedin.com/in/damini-patel){:target="_blank"}  
+- 💻 [GitHub](https://github.com/DaminiUNH)
+- 💼 [LinkedIn](https://www.linkedin.com/in/damini-patel) 
