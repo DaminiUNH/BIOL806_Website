@@ -5,31 +5,25 @@ permalink: /projects/
 author_profile: true
 ---
 
-Welcome! Here are a few projects highlighting my work in **cell culture** and **data science with R**.
+Welcome! Here are a few recent projects from my courses and independent work.
 
-## Featured Projects
-
-### Coral Reef Biodiversity: Time Series in R
-- **Skills:** tidyverse, ggplot2, data wrangling, time-series trends  
-- **Summary:** Analyzed 10 years of BioTIME coral reef fish data; trends in abundance & richness.  
-- **Links:** 
-  - [PDF Report](/_data/Temporal_Trends_Coral_Reef_Biodiversity.pdf)
-  - [Code/Notes](/_data/reef_notes.qmd)
+## 🌊 Temporal Trends in Coral Reef Biodiversity (R, ggplot2)
+Time-series analysis of reef fish abundance and richness (BioTIME Study 45: 2006–2015).  
+- **Methods:** tidyverse (dplyr, ggplot2), simple linear trends, LOESS  
+- **Highlights:** Annual richness/abundance trends; family-level dynamics  
+- **PDF report:** [Download](/_data/Temporal_Trends_Coral_Reef_Biodiversity.pdf)
+- **Code/Notebook:** (add link to your repo or notebook when ready)
 
 ---
 
-### Penguins EDA & Visualization
-- **Skills:** dplyr, tidyr, forcats, ggplot2  
-- **Summary:** Summaries by species/island; scatterplots, boxplots, and facet grids.  
-- **Links:** 
-  - [Project Notebook](/_data/penguins.qmd)
-  - [Rendered HTML](/_data/penguins-notebook.html)
+## 🐧 Palmer Penguins EDA
+Exploratory data analysis of the `palmerpenguins` dataset using tidyverse.  
+- **Focus:** data cleaning, factor handling with forcats, and visualization  
+- **HTML notebook:** (add link, e.g., `/_data/penguins-notebook.html`)
 
 ---
 
-### Cell Culture Growth Curves (Design)
-- **Skills:** growth rate estimation, plotting, reproducible reporting  
-- **Summary:** (In progress) Designing a small lab-style dataset to model growth under media changes.  
-- **Links:** 
-  - (Coming soon)
-  
+## 🧫 Cell Culture Mini-Project (in progress)
+Reproducible R workflow for analyzing cell growth and media conditions.  
+- **Planned:** QC, growth curves, summary tables  
+- **Notebook/Poster:** (add link when available)
